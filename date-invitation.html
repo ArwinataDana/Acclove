@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Will You Go on a Date with Me?</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: #ffe4ec;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    h1, h2 {
+      font-family: 'Great Vibes', cursive;
+    }
+    .heart {
+      position: fixed;
+      width: 20px;
+      height: 20px;
+      background: #ff4d94;
+      transform: rotate(-45deg);
+      animation: fadeOut 1s forwards;
+      pointer-events: none;
+      z-index: 9999;
+    }
+    .heart:before, .heart:after {
+      content: "";
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: #ff4d94;
+      border-radius: 50%;
+    }
+    .heart:before { top: -10px; left: 0; }
+    .heart:after { left: 10px; top: 0; }
+    @keyframes fadeOut {
+      0% { opacity: 1; transform: rotate(-45deg) scale(1); }
+      100% { opacity: 0; transform: rotate(-45deg) scale(2); }
+    }
+  </style>
+</head>
+<body>
+  <div id="app" class="min-h-screen flex flex-col items-center justify-center p-6"></div>
+
+  <script>
+    document.addEventListener('mousemove', (e) => {
+      const heart = document.createElement('div');
+      heart.className = 'heart';
+      heart.style.left = e.clientX + 'px';
+      heart.style.top = e.clientY + 'px';
+      document.body.appendChild(heart);
+      setTimeout(() => heart.remove(), 1000);
+    });
+
+    const app = document.getElementById('app');
+    let dateValue = '', timeValue = '', placeValue = '';
+
+    function renderPage1() {
+      app.innerHTML = `
+        <div class="bg-pink-100 p-8 rounded-3xl shadow-xl text-center max-w-md w-full">
+          <h1 class="text-5xl text-pink-600 mb-4">Would You Go on a Date with Me?</h1>
+          <p class="text-pink-700 mb-8 text-lg">I'll let you choose the place 💖</p>
+          <div class="relative h-16 flex justify-center space-x-4">
+            <button id="yesBtn" class="bg-pink-500 hover:bg-pink-600 text-white py-3 px-6 rounded-full font-semibold shadow-lg">
+              Yes!
+            </button>
+            <button id="noBtn" class="bg-pink-300 text-pink-800 py-3 px-6 rounded-full font-semibold shadow-lg absolute top-0 left-1/2 transform -translate-x-1/2">
+              No 🙈
+            </button>
+          </div>
+        </div>
+      `;
+
+      const yesBtn = document.getElementById('yesBtn');
+      const noBtn = document.getElementById('noBtn');
+
+      yesBtn.addEventListener('click', () => renderPage2());
+
+      noBtn.addEventListener('mouseenter', () => {
+        noBtn.style.opacity = '0';
+        noBtn.style.pointerEvents = 'none';
+        setTimeout(() => {
+          const container = noBtn.parentElement;
+          const maxLeft = container.clientWidth - noBtn.offsetWidth;
+          const maxTop = container.clientHeight - noBtn.offsetHeight;
+
+          noBtn.style.left = Math.random() * maxLeft + 'px';
+          noBtn.style.top = Math.random() * maxTop + 'px';
+          noBtn.style.opacity = '1';
+          noBtn.style.pointerEvents = 'auto';
+        }, 300);
+      });
+    }
+
+    function renderPage2() {
+      app.innerHTML = `
+        <div class="bg-pink-50 p-8 rounded-3xl shadow-xl text-center max-w-md w-full">
+          <h2 class="text-4xl text-pink-600 mb-6">Pick the Time & Place</h2>
+          <form id="dateForm" class="space-y-4 text-left">
+            <label class="block">
+              <span class="text-pink-700 font-medium">Date:</span>
+              <input type="date" id="dateInput" required class="w-full px-3 py-2 border border-pink-300 rounded-md" />
+            </label>
+            <label class="block">
+              <span class="text-pink-700 font-medium">Time:</span>
+              <input type="time" id="timeInput" required class="w-full px-3 py-2 border border-pink-300 rounded-md" />
+            </label>
+            <label class="block">
+              <span class="text-pink-700 font-medium">Where would you love to go?</span>
+              <input type="text" id="placeInput" required placeholder="Your dream place..." class="w-full px-3 py-2 border border-pink-300 rounded-md" />
+            </label>
+            <div class="text-center pt-4">
+              <button type="submit" class="bg-pink-500 hover:bg-pink-600 text-white py-3 px-8 rounded-full font-semibold shadow-lg">
+                Let’s Go!
+              </button>
+            </div>
+          </form>
+        </div>
+      `;
+
+      document.getElementById('dateForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        dateValue = document.getElementById('dateInput').value;
+        timeValue = document.getElementById('timeInput').value;
+        placeValue = document.getElementById('placeInput').value;
+        renderPage3();
+      });
+    }
+
+    function renderPage3() {
+      const dateObj = new Date(`${dateValue}T${timeValue}`);
+      const formattedDate = dateObj.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+      const formattedTime = dateObj.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+
+      app.innerHTML = `
+        <div class="bg-pink-50 p-8 rounded-3xl shadow-xl text-center max-w-md w-full">
+          <h2 class="text-4xl text-pink-600 mb-6">Yay! It’s a Date!</h2>
+          <p class="text-pink-700 text-lg mb-4">Here's what you planned:</p>
+          <div class="text-left space-y-2 text-pink-700">
+            <p><strong>📅 Date:</strong> ${formattedDate}</p>
+            <p><strong>⏰ Time:</strong> ${formattedTime}</p>
+            <p><strong>📍 Place:</strong> ${placeValue}</p>
+          </div>
+          <div class="mt-6">
+            <button id="restartBtn" class="bg-pink-400 hover:bg-pink-500 text-white py-2 px-6 rounded-full font-medium">
+              Start Again
+            </button>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('restartBtn').addEventListener('click', () => renderPage1());
+    }
+
+    renderPage1();
+  </script>
+</body>
+</html>
